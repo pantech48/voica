@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["Yevgeniy"]
+readme = "README.md"
+packages = [{ include = "src" }]  # Ensure the package is correctly specified
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pyaudio = "^0.2.14"
+sounddevice = "^0.5.0"
+numpy = ">=1.22,<2.1"
+speechrecognition = "^3.10.4"
+pyperclip = "^1.9.0"
+pyobjc = "^10.3.1"
+pyqt6 = "^6.7.1"
+soundfile = "^0.12.1"
+keyboard = "^0.13.5"
+numba = "^0.60.0"
+llvmlite = "^0.43.0"
+openai-whisper = "^20240927"
+torch = "^2.4.1"
+
+[tool.poetry.scripts]
+start = "src.voice_to_clipboard:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
