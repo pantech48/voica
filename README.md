@@ -163,14 +163,56 @@ poetry run start
 
 ## Troubleshooting
 
-- Ensure BlackHole is properly set up as both an output and input device.
-- Check that the app has necessary permissions to access the microphone.
-- For better accuracy, try a larger Whisper model (may impact performance).
-- Make sure the app window is in focus for hotkeys to work.
+- **No Audio Input Detected**:
+
+  - Ensure **BlackHole 2ch** is set as your system input device.
+  - Verify that the multi-output device includes **BlackHole 2ch**.
+
+- **Cannot Start Recording**:
+
+  - Check that the selected input device is correct.
+  - Ensure the app has permission to access the microphone (System Preferences > Security & Privacy > Privacy > Microphone).
+
+- **Transcription is Inaccurate**:
+
+  - Try selecting a larger Whisper model for better accuracy.
+  - Ensure that the audio quality is good and clear.
+
+- **Hotkey Not Responding**:
+
+  - The app window must be in focus for hotkeys to work.
+  - Custom global hotkeys are not supported due to macOS security restrictions.
+
+- **High CPU Usage or Slow Performance**:
+
+  - Larger Whisper models require more computational power.
+  - Use a smaller model like `tiny` or `base` for better performance.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+
+1. **Fork the Repository**
+
+2. **Create a Feature Branch**
+
+   ```bash
+   git checkout -b feature/YourFeature
+   ```
+
+3. **Commit Your Changes**
+
+   ```bash
+   git commit -m "Add YourFeature"
+   ```
+
+4. **Push to Your Fork**
+
+   ```bash
+   git push origin feature/YourFeature
+   ```
+
+5. **Open a Pull Request**
 
 ## License
 
