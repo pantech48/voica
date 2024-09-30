@@ -201,6 +201,16 @@ files = [
 ]
 
 [[package]]
+name = "evdev"
+version = "1.7.1"
+description = "Bindings to the Linux input handling subsystem"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "evdev-1.7.1.tar.gz", hash = "sha256:0c72c370bda29d857e188d931019c32651a9c1ea977c08c8d939b1ced1637fde"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.16.1"
 description = "A platform independent file lock."
@@ -732,6 +742,23 @@ files = [
     {file = "pycparser-2.22-py3-none-any.whl", hash = "sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc"},
     {file = "pycparser-2.22.tar.gz", hash = "sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6"},
 ]
+
+[[package]]
+name = "pynput"
+version = "1.7.7"
+description = "Monitor and control user input devices"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pynput-1.7.7-py2.py3-none-any.whl", hash = "sha256:afc43f651684c98818de048abc76adf9f2d3d797083cb07c1f82be764a2d44cb"},
+]
+
+[package.dependencies]
+evdev = {version = ">=1.3", markers = "sys_platform in \"linux\""}
+pyobjc-framework-ApplicationServices = {version = ">=8.0", markers = "sys_platform == \"darwin\""}
+pyobjc-framework-Quartz = {version = ">=8.0", markers = "sys_platform == \"darwin\""}
+python-xlib = {version = ">=0.17", markers = "sys_platform in \"linux\""}
+six = "*"
 
 [[package]]
 name = "pyobjc"
@@ -3615,16 +3642,16 @@ PyQt6-sip = ">=13.8,<14"
 
 [[package]]
 name = "pyqt6-qt6"
-version = "6.7.2"
+version = "6.7.3"
 description = "The subset of a Qt installation needed by PyQt6."
 optional = false
 python-versions = "*"
 files = [
-    {file = "PyQt6_Qt6-6.7.2-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:065415589219a2f364aba29d6a98920bb32810286301acbfa157e522d30369e3"},
-    {file = "PyQt6_Qt6-6.7.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:7f817efa86a0e8eda9152c85b73405463fbf3266299090f32bbb2266da540ead"},
-    {file = "PyQt6_Qt6-6.7.2-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:05f2c7d195d316d9e678a92ecac0252a24ed175bd2444cc6077441807d756580"},
-    {file = "PyQt6_Qt6-6.7.2-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:fc93945eaef4536d68bd53566535efcbe78a7c05c2a533790a8fd022bac8bfaa"},
-    {file = "PyQt6_Qt6-6.7.2-py3-none-win_amd64.whl", hash = "sha256:b2d7e5ddb1b9764cd60f1d730fa7bf7a1f0f61b2630967c81761d3d0a5a8a2e0"},
+    {file = "PyQt6_Qt6-6.7.3-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:f517a93b6b1a814d4aa6587adc312e812ebaf4d70415bb15cfb44268c5ad3f5f"},
+    {file = "PyQt6_Qt6-6.7.3-py3-none-macosx_11_0_arm64.whl", hash = "sha256:8551732984fb36a5f4f3db51eafc4e8e6caf18617365830285306f2db17a94c2"},
+    {file = "PyQt6_Qt6-6.7.3-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:50c7482bcdcf2bb78af257fb10ed8b582f8daf91d829782393bc50ac5a0a900c"},
+    {file = "PyQt6_Qt6-6.7.3-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:cb525fdd393332de60887953029276a44de480fce1d785251ae639580f5e7246"},
+    {file = "PyQt6_Qt6-6.7.3-py3-none-win_amd64.whl", hash = "sha256:36ea0892b8caeb983af3f285f45fb8dfbb93cfd972439f4e01b7efb2868f6230"},
 ]
 
 [[package]]
@@ -3656,6 +3683,20 @@ files = [
     {file = "PyQt6_sip-13.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:2559afa68825d08de09d71c42f3b6ad839dcc30f91e7c6d0785e07830d5541a5"},
     {file = "PyQt6_sip-13.8.0.tar.gz", hash = "sha256:2f74cf3d6d9cab5152bd9f49d570b2dfb87553ebb5c4919abfde27f5b9fd69d4"},
 ]
+
+[[package]]
+name = "python-xlib"
+version = "0.33"
+description = "Python X Library"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-xlib-0.33.tar.gz", hash = "sha256:55af7906a2c75ce6cb280a584776080602444f75815a7aff4d287bb2d7018b32"},
+    {file = "python_xlib-0.33-py2.py3-none-any.whl", hash = "sha256:c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398"},
+]
+
+[package.dependencies]
+six = ">=1.10.0"
 
 [[package]]
 name = "regex"
@@ -3800,6 +3841,17 @@ doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-
 enabler = ["pytest-enabler (>=2.2)"]
 test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
 type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.11.*)", "pytest-mypy"]
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+files = [
+    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
 
 [[package]]
 name = "sounddevice"
@@ -4065,4 +4117,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a192e3c54e215915d6c4f12c7f5f75db6051cb186270e540ddd197f856a715ee"
+content-hash = "2097cd7d72969775ddb72dd1b5903cd8e6fb1bc3061ed1dcc4377ecaa20587dd"

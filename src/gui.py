@@ -1,133 +1,13 @@
 import sys
-import threading
-import sounddevice as sd
-import soundfile as sf
-import numpy as np
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTextEdit, QComboBox, QHBoxLayout
-from PyQt6.QtCore import QObject, pyqtSignal, Qt, QTimer, QThread, QEventLoop
-from PyQt6.QtGui import QShortcut, QKeySequence, QKeyEvent, QFont
-import speech_recognition as sr
-import pyperclip
-import io
-import whisper
-import torch
 import traceback
-from contextlib import contextmanager
+import sounddevice as sd
 import warnings
-import tracemalloc
-
-class TranscriptionThread(QThread):
-    transcription_completed = pyqtSignal(str)
-    log_message = pyqtSignal(str)
-
-    def __init__(self, audio_data, model):
-        super().__init__()
-        self.audio_data = audio_data
-        self.model = model
-
-    def run(self):
-        try:
-            result = self.model.transcribe(self.audio_data, fp16=False)
-            transcribed_text = result['text']
-            self.transcription_completed.emit(transcribed_text)
-        except Exception as e:
-            error_msg = f"Error in transcription thread: {str(e)}\n{traceback.format_exc()}"
-            self.log_message.emit(error_msg)
-            print(error_msg)
-
-class AudioRecorder(QObject):
-    recording_finished = pyqtSignal(str)
-    log_message = pyqtSignal(str)
-
-    def __init__(self, model):
-        super().__init__()
-        tracemalloc.start()
-        self.is_recording = False
-        self.audio_buffer = io.BytesIO()
-        self.device_id = None
-        self.device_info = None
-        self.model = model
-        
-        current, peak = tracemalloc.get_traced_memory()
-        self.log_message.emit(f"Current memory usage: {current / 10**6}MB; Peak: {peak / 10**6}MB")
-
-    def start_recording(self):
-        if self.device_id is None or self.device_info is None:
-            self.log_message.emit("Please select an input device.")
-            return
-
-        self.is_recording = True
-        self.audio_buffer = io.BytesIO()
-
-        channels = 1  # Use mono channel
-        samplerate = 16000  # Use 16kHz sample rate
-
-        def callback(indata, frames, time, status):
-            if status:
-                self.log_message.emit(str(status))
-            # Write raw audio data to buffer
-            self.audio_buffer.write(indata.tobytes())
-
-        try:
-            self.stream = sd.InputStream(device=self.device_id, channels=channels, samplerate=samplerate, callback=callback)
-            self.stream.start()
-            self.log_message.emit(f"Recording started with {channels} channel(s) at {samplerate} Hz...")
-        except Exception as e:
-            self.log_message.emit(f"Error starting recording: {str(e)}")
-            self.is_recording = False
-
-    def stop_recording(self):
-        if hasattr(self, 'stream'):
-            self.stream.stop()
-            self.stream.close()
-        
-        self.is_recording = False
-        self.log_message.emit("Recording stopped.")
-        
-        self.transcribe_audio()
-
-    def transcribe_audio(self):
-        if self.audio_buffer.getbuffer().nbytes > 0:
-            try:
-                self.audio_buffer.seek(0)
-                audio_bytes = self.audio_buffer.read()
-                audio_data = np.frombuffer(audio_bytes, dtype=np.float32)
-
-                max_value = np.max(np.abs(audio_data))
-                if max_value > 0:
-                    audio_data = audio_data / max_value
-                else:
-                    self.log_message.emit("Audio data is silent.")
-                    return  # Stop processing since there's no audible data
-
-                # Start transcription in a new thread
-                self.transcription_thread = TranscriptionThread(audio_data, self.model)
-                self.transcription_thread.transcription_completed.connect(self.recording_finished.emit)
-                self.transcription_thread.log_message.connect(self.log_message.emit)
-                self.transcription_thread.start()
-
-                current, peak = tracemalloc.get_traced_memory()
-                self.log_message.emit(f"Current memory usage: {current / 10**6}MB; Peak: {peak / 10**6}MB")
-
-            except Exception as e:
-                error_msg = f"Error preparing audio for transcription: {str(e)}\n{traceback.format_exc()}"
-                self.log_message.emit(error_msg)
-                print(error_msg)
-        else:
-            self.log_message.emit("No audio data to transcribe.")
-
-    def get_input_level(self):
-        if self.audio_buffer.getbuffer().nbytes > 0:
-            self.audio_buffer.seek(-4000, 2)  # Move to last 1000 samples (assuming float32)
-            latest_data = np.frombuffer(self.audio_buffer.read(), dtype=np.float32)
-            return np.abs(latest_data).mean()
-        return 0
-
-    def cleanup(self):
-        del self.model
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        tracemalloc.stop()
+import whisper
+import pyperclip
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QTextEdit, QComboBox, QHBoxLayout
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QFont, QKeyEvent
+from src.recorder import AudioRecorder
 
 class AudioRecorderGUI(QMainWindow):
     def __init__(self):
@@ -139,11 +19,12 @@ class AudioRecorderGUI(QMainWindow):
         # Initialize log_buffer at the beginning of __init__
         self.log_buffer = []
 
+        # Load the default "base" model at app launch
         try:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=FutureWarning)
-                model = whisper.load_model("tiny", device="cpu")
-            self.log_message("Whisper model loaded.")
+                model = whisper.load_model("base", device="cpu")
+            self.log_message("Whisper 'base' model loaded.")
         except Exception as e:
             error_msg = f"Error loading Whisper model: {str(e)}\n{traceback.format_exc()}"
             self.log_message(error_msg)
@@ -219,6 +100,7 @@ class AudioRecorderGUI(QMainWindow):
 
         # Populate model combo box
         self.model_combo.addItems(["tiny", "base", "small", "medium", "large"])
+        self.model_combo.setCurrentText("base")
 
         # Add widgets to main layout
         main_layout.addWidget(self.status_label)
@@ -256,7 +138,7 @@ class AudioRecorderGUI(QMainWindow):
                 self.device_combo.addItem(f"{device['name']} (ID: {i})", i)
                 if first_input_device is None:
                     first_input_device = i
-    
+
         if first_input_device is not None:
             self.device_combo.setCurrentIndex(0)
             self.on_device_changed(0)
@@ -333,25 +215,8 @@ class AudioRecorderGUI(QMainWindow):
         key_name = self.hotkey_combo.currentText()
         self.hotkey = self.key_map.get(key_name, Qt.Key.Key_CapsLock)
 
-    # Add this method to handle key press events
     def keyPressEvent(self, event: QKeyEvent):
         if event.key() == self.hotkey:
             self.toggle_recording()
         else:
             super().keyPressEvent(event)
-
-if __name__ == "__main__":
-    import sys
-
-    def exception_hook(exctype, value, tb):
-        print(f"Uncaught exception: {exctype.__name__}: {value}")
-        print("Traceback:")
-        traceback.print_tb(tb)
-        sys.__excepthook__(exctype, value, tb)
-
-    sys.excepthook = exception_hook
-
-    app = QApplication(sys.argv)
-    window = AudioRecorderGUI()
-    window.show()
-    sys.exit(app.exec())
