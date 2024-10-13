@@ -19,9 +19,9 @@ soundfile = "^0.12.1"
 keyboard = "^0.13.5"
 numba = "^0.60.0"
 llvmlite = "^0.43.0"
-openai-whisper = "^20240927"
 torch = "^2.4.1"
 pynput = "^1.7.7"
+openai-whisper = {git = "https://github.com/openai/whisper.git"}
 
 [tool.poetry.scripts]
 start = "main:main"

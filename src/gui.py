@@ -99,7 +99,7 @@ class AudioRecorderGUI(QMainWindow):
         self.log_text.setAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled, False)
 
         # Populate model combo box
-        self.model_combo.addItems(["tiny", "base", "small", "medium", "large"])
+        self.model_combo.addItems(["tiny", "base", "small", "medium", "large", "turbo"])
         self.model_combo.setCurrentText("base")
 
         # Add widgets to main layout
